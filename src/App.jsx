@@ -6,10 +6,8 @@ import { MorphSVGPlugin } from "gsap/MorphSVGPlugin";
 
 gsap.registerPlugin(MorphSVGPlugin);
 
-
 // outsource svg into own component
 const SvgShape = ({ paths, index }) => {
-
   // immer wenn sich INDEX ändert,
   // dann morphe bitte ins nächste SVG
   useEffect(() => {
@@ -21,22 +19,20 @@ const SvgShape = ({ paths, index }) => {
       duration: 1,
       morphSVG: paths[index],
     });
-  }, [index])
+  }, [index]);
 
-
-  return <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-    strokeWidth="1.5"
-    stroke="currentColor"
-  >
-    <path strokeLinecap="round" strokeLinejoin="round" 
-    d={paths[0]} />
-  </svg>;
-
-}
-
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth="1.5"
+      stroke="currentColor"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d={paths[0]} />
+    </svg>
+  );
+};
 
 function App() {
   // array mit shapes
@@ -56,17 +52,18 @@ function App() {
   // speichere aktuell sichtbaren PATH in State
   const [index, setIndex] = useState(0);
 
-  // Functions soll immer zur nächsten SVG
+  // bei Button klick => erhöhe immer den Index vom aktuellen Path
+  // der Index zeigt dann auf den nächsten Path, in den gemorphed werden soll
   const nextSvg = () => {
-
-    // modulo trick 
+    // modulo trick
     // wenn wir immer mit modulo durch die Array length teilen,
     // bekommen wir immer den nächsten index
     // und am Ende fängt modulo wieder beim array von vorne an
-    const indexNext = (index + 1) % paths.length
+    const indexNext = (index + 1) % paths.length;
 
-    // index immer um 1 erhöhen
-    setIndex(indexNext); // 0 => ++ => 1
+    // der setter triggert das Re-Render.
+    // und damit auch das Update von Props an Child Componenents
+    setIndex(indexNext);
   };
 
   return (
@@ -75,11 +72,10 @@ function App() {
 
       <div>Aktuelles SVG: {index}</div>
       <div>
-      <button onClick={nextSvg}>Next</button>
+        <button onClick={nextSvg}>Next</button>
       </div>
       {/* gebe geänderten Index State immer an Child Component weiter */}
       <SvgShape paths={paths} index={index} />
-
     </>
   );
 }
