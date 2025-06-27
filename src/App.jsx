@@ -1,10 +1,42 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import { gsap } from "gsap";
 
 import { MorphSVGPlugin } from "gsap/MorphSVGPlugin";
 
 gsap.registerPlugin(MorphSVGPlugin);
+
+
+// outsource svg into own component
+const SvgShape = ({ paths, index }) => {
+
+  // immer wenn sich INDEX ändert,
+  // dann morphe bitte ins nächste SVG
+  useEffect(() => {
+    console.log("Index hat sich geändert: ", index);
+
+    // morphe den path in einen NEUEN Path
+    // wir können GSAP den neuen Path als String übergeben
+    gsap.to("path", {
+      duration: 1,
+      morphSVG: paths[index],
+    });
+  }, [index])
+
+
+  return <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth="1.5"
+    stroke="currentColor"
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" 
+    d={paths[0]} />
+  </svg>;
+
+}
+
 
 function App() {
   // array mit shapes
@@ -33,13 +65,6 @@ function App() {
     // und am Ende fängt modulo wieder beim array von vorne an
     const indexNext = (index + 1) % paths.length
 
-    // morphe den path in einen NEUEN Path
-    // wir können GSAP den neuen Path als String übergeben
-    gsap.to("path", {
-      duration: 1,
-      morphSVG: paths[indexNext],
-    });
-
     // index immer um 1 erhöhen
     setIndex(indexNext); // 0 => ++ => 1
   };
@@ -49,17 +74,12 @@ function App() {
       <h1>SVG Round Robin Morph</h1>
 
       <div>Aktuelles SVG: {index}</div>
+      <div>
+      <button onClick={nextSvg}>Next</button>
+      </div>
+      {/* gebe geänderten Index State immer an Child Component weiter */}
+      <SvgShape paths={paths} index={index} />
 
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth="1.5"
-        stroke="currentColor"
-        onClick={nextSvg}
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" d={paths[0]} />
-      </svg>
     </>
   );
 }
